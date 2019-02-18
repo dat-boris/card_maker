@@ -17,6 +17,14 @@ NEW_IMAGE_SIZE = (
 
 TMPFILE_FOLDER = 'genfile'
 
+_screenshoter = None
+
+
+def get_screenshoter():
+    if _screenshoter is None:
+        return pageshot.Screenshoter(width=DIMENSION[0], height=DIMENSION[1])
+    return _screenshoter
+
 
 @click.group()
 def cli():
@@ -38,6 +46,8 @@ def render(content_yaml, output):
 
 def parse_content(content_file):
     output_images = []
+    content_path = os.path.dirname(os.path.abspath(content_file))
+
     with open(content_file, 'r') as stream:
         data = yaml.load_all(stream)
         for i, d in enumerate(data):
@@ -47,19 +57,18 @@ def parse_content(content_file):
             temp_out_img = '{tmpfolder}/output_{index}.png'.format(
                 index=i, tmpfolder=TMPFILE_FOLDER
             )
-            template_file = d['template_file']
-            render_content(d, template_file, temp_out_img)
-
+            template_file = d.get('template_file')
+            assert template_file, "No template file found in: {}".format(d)
+            render_content(d, template_file,
+                           temp_out_img, render_path=content_path)
             output_images.append(temp_out_img)
     return output_images
 
 
-def render_content(data, template, tmp_img_file):
-    print("Rendering: {} with data: {}".format(template, data))
-    # Render html into png
-    url = "file:///Users/borislau/personal/card_maker/example_game/layout.html"
-    s = pageshot.Screenshoter(width=DIMENSION[0], height=DIMENSION[1])
-    s.take_screenshot(url, tmp_img_file)
+def render_content(data, template, tmp_img_file, render_path):
+    url = "file://{}/{}".format(render_path, template)
+    print("Rendering: {} with data: {}".format(url, data))
+    get_screenshoter().take_screenshot(url, tmp_img_file)
 
 
 def join_images(img_array, joined_img):
