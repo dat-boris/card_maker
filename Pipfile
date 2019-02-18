@@ -10,6 +10,7 @@ livereload = "*"
 click = "*"
 imgkit = "*"
 pageshot = "*"
+pillow = "*"
 
 [dev-packages]
 
