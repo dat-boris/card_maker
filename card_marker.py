@@ -1,7 +1,10 @@
 #!/usr/bin/env python
-from PIL import Image
+import os
+
+import yaml
 import click
 import pageshot
+from PIL import Image
 
 # based on 9*6 requirements for 4096 * 4096
 DIMENSION = (455, 682)
@@ -12,6 +15,8 @@ NEW_IMAGE_SIZE = (
     DIMENSION[1]*IMAGES_LAYOUT[1]
 )
 
+TMPFILE_FOLDER = 'genfile'
+
 
 @click.group()
 def cli():
@@ -19,22 +24,42 @@ def cli():
 
 
 @cli.command()
-@click.option('-t', '--template', type=click.STRING)
+@click.argument('content_yaml')
 @click.option('-o', '--output', type=click.STRING, default='out.png')
-def render(template, output):
+def render(content_yaml, output):
     """Given a folder, render the image generated for boardgame simulator
     """
-    print("Rendering: {}".format(template))
-    # Render html into png
-    tmp_img_file = 'output.1.png'
-    url = "file:///Users/borislau/personal/card_maker/example_game/layout.html"
-    s = pageshot.Screenshoter(width=DIMENSION[0], height=DIMENSION[1])
-
-    s.take_screenshot(url, tmp_img_file)
+    image_files = parse_content(content_yaml)
 
     # layout png in sequential format
-    join_images([tmp_img_file] * TOTAL_IMAGES, output)
+    join_images(image_files, output)
     print("Output: {}".format(output))
+
+
+def parse_content(content_file):
+    output_images = []
+    with open(content_file, 'r') as stream:
+        data = yaml.load_all(stream)
+        for i, d in enumerate(data):
+            if d is None:
+                continue
+
+            temp_out_img = '{tmpfolder}/output_{index}.png'.format(
+                index=i, tmpfolder=TMPFILE_FOLDER
+            )
+            template_file = d['template_file']
+            render_content(d, template_file, temp_out_img)
+
+            output_images.append(temp_out_img)
+    return output_images
+
+
+def render_content(data, template, tmp_img_file):
+    print("Rendering: {} with data: {}".format(template, data))
+    # Render html into png
+    url = "file:///Users/borislau/personal/card_maker/example_game/layout.html"
+    s = pageshot.Screenshoter(width=DIMENSION[0], height=DIMENSION[1])
+    s.take_screenshot(url, tmp_img_file)
 
 
 def join_images(img_array, joined_img):
