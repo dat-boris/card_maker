@@ -1,0 +1,41 @@
+<html>
+    <style>
+        body {
+            font-size: 30px;
+            font-family: "Courier New", Courier, monospace;
+            background-color: white;
+        }
+
+        .card-border {
+            height: 682px;
+            width: 455px;
+
+            border-style: solid;
+            border-color: black;
+
+            margin: 20px;
+            padding: 20px;
+        }
+
+        .image {
+            margin: 20px 0px;
+        }
+        .image img {
+            height: 200px;
+            width: 100%;
+        }
+    </style>
+    <body>
+        <div class="card-border">
+            <div class="title">
+                {{ title }}
+            </div>
+            <div class="image">
+                <img src="{{ img }}"></img>
+            </div>
+            <div class="content">
+                {{ effect }}
+            </div>
+        </div>
+    </body>
+<html>

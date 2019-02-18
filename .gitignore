@@ -1,4 +1,5 @@
 out.png
+genfile/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
