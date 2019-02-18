@@ -3,6 +3,7 @@ import os
 
 import yaml
 import click
+import jinja2
 import pageshot
 from PIL import Image
 
@@ -15,7 +16,7 @@ NEW_IMAGE_SIZE = (
     DIMENSION[1]*IMAGES_LAYOUT[1]
 )
 
-TMPFILE_FOLDER = 'genfile'
+TMPFILE_FOLDER = os.path.abspath('genfile')
 
 _screenshoter = None
 
@@ -66,9 +67,18 @@ def parse_content(content_file):
 
 
 def render_content(data, template, tmp_img_file, render_path):
-    url = "file://{}/{}".format(render_path, template)
-    print("Rendering: {} with data: {}".format(url, data))
-    get_screenshoter().take_screenshot(url, tmp_img_file)
+    template_abs_path = "{}/{}".format(render_path, template)
+    print("Rendering: {} with data: {}".format(template_abs_path, data))
+
+    with open(template_abs_path) as t:
+        template = jinja2.Template(t.read())
+
+    tmp_output_html = '{}/rendered.html'.format(TMPFILE_FOLDER)
+    with open(tmp_output_html, 'w') as f:
+        rendered_html = template.render(**data)
+        f.write(rendered_html)
+
+    get_screenshoter().take_screenshot("file://"+tmp_output_html, tmp_img_file)
 
 
 def join_images(img_array, joined_img):

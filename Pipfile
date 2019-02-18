@@ -12,6 +12,7 @@ imgkit = "*"
 pageshot = "*"
 pillow = "*"
 pyyaml = "*"
+"jinja2" = "*"
 
 [dev-packages]
 
