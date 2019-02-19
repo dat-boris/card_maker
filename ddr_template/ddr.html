@@ -1,0 +1,89 @@
+<html>
+    <meta charset='utf-8'>
+    <style>
+        body {
+            position: absolute;
+            font-size: 30px;
+            font-family: "Courier New", Courier, monospace;
+            background-color: white;
+        }
+
+        .card-border {
+            height: 682px;
+            width: 455px;
+
+            border-style: solid;
+            border-color: black;
+
+            margin: 10px;
+            padding: 20px;
+        }
+
+        .content {
+            position: absolute;
+            font-size: 40px;
+            top: 300px;
+            left: 200px;
+            -webkit-transform:rotate(90deg);
+            transform:rotate(90deg);
+        }
+
+        .north {
+            position: absolute;
+            font-size: 80px;
+            top: 30px;
+            left: 227px;
+            -webkit-transform:rotate(90deg);
+            transform:rotate(90deg);
+        }
+
+        .east {
+            position: absolute;
+            font-size: 80px;
+            right: 30px;
+            top: 341px;
+            -webkit-transform:rotate(-180deg);
+            transform:rotate(-180deg);
+        }
+
+        .south {
+            position: absolute;
+            font-size: 80px;
+            bottom: 30px;
+            left: 227px;
+            -webkit-transform:rotate(-90deg);
+            transform:rotate(-90deg);
+        }
+
+        .west {
+            position: absolute;
+            font-size: 80px;
+            left: 30px;
+            top: 341px;
+            transform:rotate(0deg);
+            transform:rotate(0deg);
+        }
+
+    </style>
+    <body>
+        <div class="card-border">
+            <div class="north">
+                ⬅
+            </div>
+            <div class="east">
+                ↩️
+            </div>
+            <div class="south">
+                ⬅
+            </div>
+            <div class="west">
+                ↩️
+            </div>
+            <div class="content">
+                <div> Power </div>
+                <div> Magic </div>
+                <div> Speed </div>
+            </div>
+        </div>
+    </body>
+<html>
