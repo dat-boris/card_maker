@@ -8,6 +8,7 @@ import pageshot
 from PIL import Image
 
 from libcardmaker.dimensions import LAYOUT
+from libcardmaker.sheets import SheetReader
 
 
 TMPFILE_FOLDER = os.path.abspath('genfile')
@@ -28,38 +29,33 @@ def cli():
 
 
 @cli.command()
-@click.argument('content_yaml')
+@click.argument('content_sheet')
 @click.option('-o', '--output', type=click.STRING, default='out')
 @click.option('-l', '--layout', type=click.STRING, default='paper')
-def render(content_yaml, output, layout):
+def render(content_sheet, output, layout):
     """Given a folder, render the image generated for boardgame simulator
     """
     # layout png in sequential format
     dimensions = LAYOUT[layout]
-    image_files = parse_content(content_yaml, dimensions=dimensions)
+    image_files = parse_content(content_sheet, dimensions=dimensions)
     join_images(image_files, output, dimensions=dimensions)
 
 
-def parse_content(content_file, dimensions):
+def parse_content(content_sheet, dimensions):
     output_images = []
-    content_path = os.path.dirname(os.path.abspath(content_file))
 
-    with open(content_file, 'r') as stream:
-        data = yaml.load_all(stream)
-        for i, d in enumerate(data):
-            if d is None:
-                continue
-
-            temp_out_img = '{tmpfolder}/output_{index}.png'.format(
-                index=i, tmpfolder=TMPFILE_FOLDER
-            )
-            template_file = d.get('template_file')
-            assert template_file, "No template file found in: {}".format(d)
-            render_content(d, template_file,
-                           temp_out_img, render_path=content_path,
-                           dimensions=dimensions)
-            count = d.get('count', 1)
-            output_images.extend([temp_out_img] * count)
+    for i, d in enumerate(iter(SheetReader(content_sheet))):
+        print("Getting data: {}".format(d))
+        temp_out_img = '{tmpfolder}/output_{index}.png'.format(
+            index=i, tmpfolder=TMPFILE_FOLDER
+        )
+        template_file = d.get('template_file')
+        assert template_file, "No template file found in: {}".format(d)
+        render_content(d, template_file,
+                       temp_out_img, render_path=os.getcwd(),
+                       dimensions=dimensions)
+        count = int(d.get('count', 1))
+        output_images.extend([temp_out_img] * count)
     return output_images
 
 
