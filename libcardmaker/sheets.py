@@ -36,12 +36,12 @@ def get_creds():
 
 class SheetReader:
 
-    def __init__(self, content_id):
+    def __init__(self, content_id, sheet_name='Sheet1'):
         self.service = build('sheets', 'v4', credentials=get_creds())
         self.content_id = content_id
         sheet = self.service.spreadsheets()
         result = sheet.values().get(spreadsheetId=self.content_id,
-                                    range='A:Z',
+                                    range='{}!A:Z'.format(sheet_name),
                                     ).execute()
         values = result.get('values', [])
         if not values:

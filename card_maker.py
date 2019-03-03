@@ -30,21 +30,25 @@ def cli():
 
 @cli.command()
 @click.argument('content_sheet')
+@click.option('-s', '--sheetname', type=click.STRING, default='Sheet1')
 @click.option('-o', '--output', type=click.STRING, default='out')
 @click.option('-l', '--layout', type=click.STRING, default='paper')
-def render(content_sheet, output, layout):
+def render(content_sheet, output, layout, sheetname):
     """Given a folder, render the image generated for boardgame simulator
     """
     # layout png in sequential format
     dimensions = LAYOUT[layout]
-    image_files = parse_content(content_sheet, dimensions=dimensions)
+    image_files = parse_content(
+        content_sheet, sheetname, dimensions=dimensions)
     join_images(image_files, output, dimensions=dimensions)
 
 
-def parse_content(content_sheet, dimensions):
+def parse_content(content_sheet, sheet_name, dimensions):
     output_images = []
 
-    for i, d in enumerate(iter(SheetReader(content_sheet))):
+    for i, d in enumerate(iter(
+            SheetReader(content_sheet, sheet_name=sheet_name
+                        ))):
         print("Getting data: {}".format(d))
         temp_out_img = '{tmpfolder}/output_{index}.png'.format(
             index=i, tmpfolder=TMPFILE_FOLDER
