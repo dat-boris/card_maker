@@ -55,11 +55,15 @@ def parse_content(content_sheet, sheet_name, dimensions):
         )
         template_file = d.get('template_file')
         assert template_file, "No template file found in: {}".format(d)
-        render_content(d, template_file,
-                       temp_out_img, render_path=os.getcwd(),
-                       dimensions=dimensions)
-        count = int(d.get('count', 1))
-        output_images.extend([temp_out_img] * count)
+        try:
+            count = int(d.get('count', 0))
+        except ValueError:
+            count = 0
+        if count:
+            render_content(d, template_file,
+                           temp_out_img, render_path=os.getcwd(),
+                           dimensions=dimensions)
+            output_images.extend([temp_out_img] * count)
     return output_images
 
 
