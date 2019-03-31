@@ -35,18 +35,20 @@ def cli():
 @click.option('-o', '--output', type=click.STRING, default='out')
 @click.option('-i', '--input_layout', type=click.STRING, default='A4')
 @click.option('-l', '--layout', type=click.STRING, default='letter')
-def render(content_sheet, output, input_layout, layout, sheetname):
+@click.option('-t', '--test', is_flag=True, default=False,
+              help="Print item in test mode (only first image)")
+def render(content_sheet, output, input_layout, layout, sheetname, test):
     """Given a folder, render the image generated for boardgame simulator
     """
     # layout png in sequential format
     input_dimensions = LAYOUT[input_layout]
     image_files = parse_content(
-        content_sheet, sheetname, dimensions=input_dimensions)
+        content_sheet, sheetname, dimensions=input_dimensions, test=test)
     output_dimensions = LAYOUT[layout]
     join_images(image_files, output, dimensions=output_dimensions)
 
 
-def parse_content(content_sheet, sheet_name, dimensions):
+def parse_content(content_sheet, sheet_name, dimensions, test=False):
     output_images = []
 
     for i, d in enumerate(iter(
@@ -67,6 +69,8 @@ def parse_content(content_sheet, sheet_name, dimensions):
                            temp_out_img, render_path=os.getcwd(),
                            dimensions=dimensions)
             output_images.extend([temp_out_img] * count)
+        if test:
+            break
     return output_images
 
 
