@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+from typing import List
 
 import yaml
 import click
@@ -7,7 +8,7 @@ import jinja2
 import pageshot
 from PIL import Image
 
-from libcardmaker.dimensions import LAYOUT
+from libcardmaker.dimensions import LAYOUT, Dimension
 from libcardmaker.sheets import SheetReader
 
 
@@ -32,15 +33,17 @@ def cli():
 @click.argument('content_sheet')
 @click.option('-s', '--sheetname', type=click.STRING, default='Sheet1')
 @click.option('-o', '--output', type=click.STRING, default='out')
-@click.option('-l', '--layout', type=click.STRING, default='paper')
-def render(content_sheet, output, layout, sheetname):
+@click.option('-i', '--input_layout', type=click.STRING, default='A4')
+@click.option('-l', '--layout', type=click.STRING, default='letter')
+def render(content_sheet, output, input_layout, layout, sheetname):
     """Given a folder, render the image generated for boardgame simulator
     """
     # layout png in sequential format
-    dimensions = LAYOUT[layout]
+    input_dimensions = LAYOUT[input_layout]
     image_files = parse_content(
-        content_sheet, sheetname, dimensions=dimensions)
-    join_images(image_files, output, dimensions=dimensions)
+        content_sheet, sheetname, dimensions=input_dimensions)
+    output_dimensions = LAYOUT[layout]
+    join_images(image_files, output, dimensions=output_dimensions)
 
 
 def parse_content(content_sheet, sheet_name, dimensions):
@@ -83,7 +86,7 @@ def render_content(data, template, tmp_img_file, render_path, dimensions):
         "file://"+tmp_output_html, tmp_img_file)
 
 
-def join_images(img_array, joined_img, dimensions):
+def join_images(img_array: List[str], joined_img: str, dimensions: Dimension):
     # creates a new empty image, RGB mode, and size 400 by 400.
     def start_image_iter(max_images=10):
         for img_count in range(max_images):
@@ -99,6 +102,8 @@ def join_images(img_array, joined_img, dimensions):
     (joined_img_name, new_im, dimension_iter) = next(image_iter)
     for i, img_file in enumerate(img_array):
         im = Image.open(img_file)
+        if not dimensions.potrait:
+            im = im.rotate(90, expand=True)
         resized_im = im.resize(dimensions.dimensions, Image.ANTIALIAS)
         try:
             (x, y) = next(dimension_iter)

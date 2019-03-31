@@ -1,9 +1,16 @@
+from typing import Tuple
+
+
 class Dimension:
     """Record dimension of the print layout"""
+    dimension: Tuple[int, int]
+    image_layout: Tuple[int, int]
+    potrait: bool
 
-    def __init__(self, dimensions, image_layout):
+    def __init__(self, dimensions, image_layout, potrait=True):
         self.dimensions = dimensions
         self.image_layout = image_layout
+        self.potrait = potrait
 
     @property
     def total_images(self):
@@ -33,5 +40,6 @@ LAYOUT = {
     # based on 9*6 requirements for 4096 * 4096
     'boardgame': Dimension((455, 682), (9, 6)),
     # 2480 pixels x 3508 pixels (print resolution)
-    'paper': Dimension((2480 // 4, 3508//4), (4, 4))
+    'A4': Dimension((2480 // 4, 3508//4), (4, 4)),
+    'letter': Dimension((2480 // 2, 3508//4), (2, 4), False),
 }
