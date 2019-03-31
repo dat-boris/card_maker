@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os
-from typing import List
+from typing import List, Dict
 
 import yaml
 import click
@@ -50,25 +50,43 @@ def render(content_sheet, output, input_layout, layout, sheetname, test):
 
 def parse_content(content_sheet, sheet_name, dimensions, test=False):
     output_images = []
-
-    for i, d in enumerate(iter(
-            SheetReader(content_sheet, sheet_name=sheet_name
-                        ))):
+    img_count = 0
+    d: List[Dict[str, any]]
+    for d in iter(SheetReader(content_sheet, sheet_name=sheet_name)):
         print("Getting data: {}".format(d))
-        temp_out_img = '{tmpfolder}/output_{index}.png'.format(
-            index=i, tmpfolder=TMPFILE_FOLDER
-        )
         template_file = d.get('template_file')
         assert template_file, "No template file found in: {}".format(d)
         try:
-            count = int(d.get('count', 0))
+            count = int(d['count'])
+        except KeyError:
+            # no key, assume 1
+            count = 1
         except ValueError:
+            # It has count, but no value provided
             count = 0
+
+        def get_image_name(img_count):
+            return '{tmpfolder}/output_{index}.png'.format(
+                index=img_count, tmpfolder=TMPFILE_FOLDER
+            )
         if count:
-            render_content(d, template_file,
-                           temp_out_img, render_path=os.getcwd(),
-                           dimensions=dimensions)
-            output_images.extend([temp_out_img] * count)
+            if not d.get('use_index'):
+                temp_out_img = get_image_name(img_count)
+                render_content(d, template_file,
+                               temp_out_img, render_path=os.getcwd(),
+                               dimensions=dimensions)
+                output_images.extend([temp_out_img] * count)
+                img_count += 1
+            else:
+                for idx in range(count):
+                    temp_out_img = get_image_name(img_count)
+                    d.update({'index': idx})
+                    render_content(d, template_file,
+                                   temp_out_img, render_path=os.getcwd(),
+                                   dimensions=dimensions)
+                    output_images.append(temp_out_img)
+                    img_count += 1
+
         if test:
             break
     return output_images
