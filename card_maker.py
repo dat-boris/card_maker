@@ -33,7 +33,8 @@ def cli():
 @click.argument('yaml_file')
 @click.option('-o', '--output', type=click.STRING, default='out')
 @click.option('-i', '--input_layout', type=click.STRING, default='A4')
-@click.option('-l', '--layout', type=click.STRING, default='letter')
+@click.option('-l', '--layout', type=click.STRING, default='letter',
+              help="Output format {}".format(list(LAYOUT.keys())))
 def render(yaml_file, output, input_layout, layout):
     all_output_images = []
     img_count = 0
@@ -44,8 +45,6 @@ def render(yaml_file, output, input_layout, layout):
     image_files = parse_content_from_array(
         yaml_data, dimensions=input_dimensions)
     output_dimensions = LAYOUT[layout]
-    import pdb
-    pdb.set_trace()
     join_images(image_files, output, dimensions=output_dimensions)
 
 

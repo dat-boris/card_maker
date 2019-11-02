@@ -25,10 +25,22 @@ This will create the sub-folder under `game_checkers` with two files:
 To create the card, run:
 
 ```
-./card_maker.py render example_game/layout.html content.yaml
+./card_maker.py render content.yaml
 ```
 
 Which will render the output file in `output.png` for printing.
+
+
+# Adjusting layout
+
+To use within [Tabletop Simulator](https://store.steampowered.com/app/286160/Tabletop_Simulator/),
+you can use the following:
+
+```
+./card_maker.py render --layout tts content.yaml
+```
+
+And in tabletop simulator, upload the iamge and use 9 * 6 as the card dimension.
 
 
 # Rendering from Google sheet

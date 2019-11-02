@@ -37,8 +37,9 @@ class Dimension:
 
 # Define layout of different print types
 LAYOUT = {
+    # for tabletop simulator
     # based on 9*6 requirements for 4096 * 4096
-    'boardgame': Dimension((455, 682), (9, 6)),
+    'tts': Dimension((455, 682), (9, 6)),
     # 2480 pixels x 3508 pixels (print resolution)
     'A4': Dimension((2480 // 4, 3508//4), (4, 4)),
     'letter': Dimension((2480 // 2, 3508//4), (2, 4), False),
