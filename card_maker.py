@@ -30,6 +30,26 @@ def cli():
 
 
 @cli.command()
+@click.argument('yaml_file')
+@click.option('-o', '--output', type=click.STRING, default='out')
+@click.option('-i', '--input_layout', type=click.STRING, default='A4')
+@click.option('-l', '--layout', type=click.STRING, default='letter')
+def render(yaml_file, output, input_layout, layout):
+    all_output_images = []
+    img_count = 0
+    input_dimensions = LAYOUT[input_layout]
+
+    # Read the yaml file
+    yaml_data = filter(lambda x: x, yaml.load_all(open(yaml_file, 'r')))
+    image_files = parse_content_from_array(
+        yaml_data, dimensions=input_dimensions)
+    output_dimensions = LAYOUT[layout]
+    import pdb
+    pdb.set_trace()
+    join_images(image_files, output, dimensions=output_dimensions)
+
+
+@cli.command()
 @click.argument('content_sheet')
 @click.option('-s', '--sheetname', type=click.STRING, default='Sheet1')
 @click.option('-o', '--output', type=click.STRING, default='out')
@@ -37,58 +57,68 @@ def cli():
 @click.option('-l', '--layout', type=click.STRING, default='letter')
 @click.option('-t', '--test', is_flag=True, default=False,
               help="Print item in test mode (only first image)")
-def render(content_sheet, output, input_layout, layout, sheetname, test):
+def render_from_gsheet(content_sheet,
+                       sheetname, output, input_layout, layout, test):
     """Given a folder, render the image generated for boardgame simulator
     """
     # layout png in sequential format
     input_dimensions = LAYOUT[input_layout]
-    image_files = parse_content(
-        content_sheet, sheetname, dimensions=input_dimensions, test=test)
+    gsheet_data = iter(SheetReader(content_sheet, sheet_name=sheet_name))
+    image_files = parse_content_from_array(
+        gsheet_data, dimensions=input_dimensions, test=test)
     output_dimensions = LAYOUT[layout]
     join_images(image_files, output, dimensions=output_dimensions)
 
 
-def parse_content(content_sheet, sheet_name, dimensions, test=False):
-    output_images = []
+def parse_content_from_array(data_list, dimensions, test=False):
+    all_output_images = []
     img_count = 0
     d: List[Dict[str, any]]
-    for d in iter(SheetReader(content_sheet, sheet_name=sheet_name)):
+    for d in data_list:
         print("Getting data: {}".format(d))
-        template_file = d.get('template_file')
-        assert template_file, "No template file found in: {}".format(d)
-        try:
-            count = int(d['count'])
-        except KeyError:
-            # no key, assume 1
-            count = 1
-        except ValueError:
-            # It has count, but no value provided
-            count = 0
-
-        def get_image_name(img_count):
-            return '{tmpfolder}/output_{index}.png'.format(
-                index=img_count, tmpfolder=TMPFILE_FOLDER
-            )
-        if count:
-            if not d.get('use_index'):
-                temp_out_img = get_image_name(img_count)
-                render_content(d, template_file,
-                               temp_out_img, render_path=os.getcwd(),
-                               dimensions=dimensions)
-                output_images.extend([temp_out_img] * count)
-                img_count += 1
-            else:
-                for idx in range(count):
-                    temp_out_img = get_image_name(img_count)
-                    d.update({'index': idx})
-                    render_content(d, template_file,
-                                   temp_out_img, render_path=os.getcwd(),
-                                   dimensions=dimensions)
-                    output_images.append(temp_out_img)
-                    img_count += 1
+        images_created = render_card_from_data(d, img_count, dimensions)
+        img_count += len(images_created)
+        all_output_images.extend(images_created)
 
         if test:
             break
+
+    return all_output_images
+
+
+def render_card_from_data(d, total_img_count, dimensions):
+    output_images = []
+
+    template_file = d.get('template_file')
+    assert template_file, "No template file found in: {}".format(d)
+    try:
+        count = int(d['count'])
+    except KeyError:
+        # no key, assume 1
+        count = 1
+    except ValueError:
+        # It has count, but no value provided
+        count = 0
+
+    def get_image_name(img_count):
+        return '{tmpfolder}/output_{index}.png'.format(
+            index=img_count, tmpfolder=TMPFILE_FOLDER
+        )
+    if count:
+        if not d.get('use_index'):
+            temp_out_img = get_image_name(total_img_count)
+            render_content(d, template_file,
+                           temp_out_img, render_path=os.getcwd(),
+                           dimensions=dimensions)
+            output_images.extend([temp_out_img] * count)
+        else:
+            for idx in range(count):
+                temp_out_img = get_image_name(total_img_count)
+                d.update({'index': idx})
+                render_content(d, template_file,
+                               temp_out_img, render_path=os.getcwd(),
+                               dimensions=dimensions)
+                output_images.append(temp_out_img)
     return output_images
 
 

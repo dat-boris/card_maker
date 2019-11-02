@@ -25,7 +25,27 @@ This will create the sub-folder under `game_checkers` with two files:
 To create the card, run:
 
 ```
-./card_maker.py render
+./card_maker.py render example_game/layout.html content.yaml
 ```
 
 Which will render the output file in `output.png` for printing.
+
+
+# Rendering from Google sheet
+
+> Experimental feature
+
+You can also pull in data from google sheet.
+
+Check options from:
+
+```
+./card_maker.py render_from_gsheet --help
+```
+
+An example command:
+
+```
+pipenv run ./card_maker.py render -s <sheet name> \
+                             --output rps-moves "<google sheet id>"
+```

@@ -1,6 +1,6 @@
-count: 9
+\count: 9
 title: Teddy Bear
-template_file: layout.html
+template_file: example_game/layout.html
 img: https://images.pexels.com/photos/33196/still-life-teddy-white-read.jpg?auto=compress&cs=tinysrgb&dpr=2&w=500
 effect: |
   Makes you secure, +2 on ego.
@@ -9,7 +9,7 @@ psychology: |
 ---
 count: 9
 title: McDonalds
-template_file: layout.html
+template_file: example_game/layout.html
 img: https://www.foodbusinessnews.net/ext/resources/FBN-Features/2/fsrf-mcdonalds-happy-meal-changes-photo.jpg?1518712799
 effect: |
   Makes you feel hungry +2. ony your food diet
