@@ -10,6 +10,7 @@ from PIL import Image
 
 from playtest_cards.dimensions import LAYOUT, Dimension
 from playtest_cards.sheets import SheetReader
+from playtest_cards.source import read_yaml
 
 
 TMPFILE_FOLDER = os.path.abspath('genfile')
@@ -41,6 +42,8 @@ def render(yaml_file, output, input_layout, layout):
     input_dimensions = LAYOUT[input_layout]
 
     # Read the yaml file
+    # TODO: use read_yaml properly instead!
+    # data_array = read_yaml(yaml_file)
     yaml_data = filter(lambda x: x, yaml.load_all(open(yaml_file, 'r')))
     image_files = parse_content_from_array(
         yaml_data, dimensions=input_dimensions)
