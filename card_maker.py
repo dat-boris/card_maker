@@ -8,8 +8,8 @@ import jinja2
 import pageshot
 from PIL import Image
 
-from libcardmaker.dimensions import LAYOUT, Dimension
-from libcardmaker.sheets import SheetReader
+from playtest_cards.dimensions import LAYOUT, Dimension
+from playtest_cards.sheets import SheetReader
 
 
 TMPFILE_FOLDER = os.path.abspath('genfile')
