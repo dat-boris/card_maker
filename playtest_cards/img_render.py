@@ -16,10 +16,15 @@ def get_screenshoter(dimensions: Dimension):
     return _screenshoter
 
 
-def generate_screenshot(html_file, output_image_name, dimensions: Dimension) -> str:
-    get_screenshoter(dimensions).take_screenshot(
-        "file://" + html_file, output_image_name
-    )
+def generate_screenshot(html_file, output_image_name, dimensions: Dimension,
+use_imgkit=False) -> str:
+    if use_imgkit:
+        import imgkit
+        imgkit.from_file(html_file, output_image_name)
+    else:
+        get_screenshoter(dimensions).take_screenshot(
+            "file://" + html_file, output_image_name
+        )
     return output_image_name
 
 

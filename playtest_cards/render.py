@@ -1,10 +1,10 @@
 import os
+import shutil
+import logging
+from typing import Dict, List
+import tempfile
 
 import jinja2
-import logging
-from typing import Dict
-import tempfile
-from typing import List
 
 from playtest_cards.img_render import generate_screenshot, join_images
 from playtest_cards.dimensions import Dimension
@@ -32,6 +32,15 @@ def render_html(
     return rendered_html
 
 
+def __copy_file(src: str, dst: str, extensions: List[str]):
+    # ignore any files but files with '.h' extension
+    for item in os.listdir(src):
+        if any([item.endswith(e) for e in extensions]):
+            s = os.path.join(src, item)
+            d = os.path.join(dst, item)
+            shutil.copy2(s, d)
+
+
 def render_all(
     data: List[dict],
     relative_path_for_template,
@@ -44,6 +53,8 @@ def render_all(
     type_filter=None,
     temp_folder=None,
     filename="output",
+    # We need to copy assets into the render folder
+    include_extensions=[".png"],
 ) -> List[str]:
     """Render images
 
@@ -52,6 +63,9 @@ def render_all(
     # For each piece of data, loop through and render all content
     # join each piece of image
     output_images = []
+
+    if temp_folder is None:
+        temp_folder = tempfile.gettempdir()
 
     html_names = SequentialFilename(filename, ext="html", temp_folder=temp_folder)
     img_names = SequentialFilename(filename, ext="png", temp_folder=temp_folder)
@@ -62,16 +76,18 @@ def render_all(
             logging.warn(f"Skipping card type: {d}")
             continue
 
-        count = d.get(count_col, 1)
+        count = int(d.get(count_col, 1)) or 1
 
         html_file = next(html_names)
         img_file = next(img_names)
         render_html(d, relative_path_for_template, html_file, template_col=template_col)
+        __copy_file(relative_path_for_template, temp_folder, include_extensions)
+
         generate_screenshot(html_file, img_file, dimensions=dimensions)
         output_images.extend([img_file] * count)
 
     final_images_iter = SequentialFilename(
-        output_filename, ext="png", temp_folder=output_folder
+        output_filename, ext="jpg", temp_folder=output_folder
     )
     final_images = join_images(output_images, final_images_iter, dimensions)
     return final_images
