@@ -3,6 +3,7 @@ from typing import Tuple
 
 class Dimension:
     """Record dimension of the print layout"""
+
     dimension: Tuple[int, int]
     image_layout: Tuple[int, int]
     potrait: bool
@@ -19,8 +20,8 @@ class Dimension:
     @property
     def total_size(self):
         return (
-            self.dimensions[0]*self.image_layout[0],
-            self.dimensions[1]*self.image_layout[1]
+            self.dimensions[0] * self.image_layout[0],
+            self.dimensions[1] * self.image_layout[1],
         )
 
     def __len__(self):
@@ -36,11 +37,10 @@ class Dimension:
 
 
 # Define layout of different print types
-LAYOUT = {
+class Layout:
     # for tabletop simulator
     # based on 9*6 requirements for 4096 * 4096
-    'tts': Dimension((455, 682), (9, 6)),
+    tts = (Dimension((455, 682), (9, 6)),)
     # 2480 pixels x 3508 pixels (print resolution)
-    'A4': Dimension((2480 // 4, 3508//4), (4, 4)),
-    'letter': Dimension((2480 // 2, 3508//4), (2, 4), False),
-}
+    A4 = (Dimension((2480 // 4, 3508 // 4), (4, 4)),)
+    letter = (Dimension((2480 // 2, 3508 // 4), (2, 4), False),)

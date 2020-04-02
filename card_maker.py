@@ -4,25 +4,11 @@ from typing import List, Dict
 
 import yaml
 import click
-import jinja2
-import pageshot
-from PIL import Image
-
-from playtest_cards.dimensions import LAYOUT, Dimension
 from playtest_cards.sheets import SheetReader
 from playtest_cards.source import read_yaml
 
 
 TMPFILE_FOLDER = os.path.abspath('genfile')
-
-_screenshoter = None
-
-
-def get_screenshoter(dimensions):
-    if _screenshoter is None:
-        return pageshot.Screenshoter(
-            width=dimensions.dimensions[0], height=dimensions.dimensions[1])
-    return _screenshoter
 
 
 @click.group()
@@ -88,89 +74,6 @@ def parse_content_from_array(data_list, dimensions, test=False):
     return all_output_images
 
 
-def render_card_from_data(d, total_img_count, dimensions):
-    output_images = []
-
-    template_file = d.get('template_file')
-    assert template_file, "No template file found in: {}".format(d)
-    try:
-        count = int(d['count'])
-    except KeyError:
-        # no key, assume 1
-        count = 1
-    except ValueError:
-        # It has count, but no value provided
-        count = 0
-
-    def get_image_name(img_count):
-        return '{tmpfolder}/output_{index}.png'.format(
-            index=img_count, tmpfolder=TMPFILE_FOLDER
-        )
-    if count:
-        if not d.get('use_index'):
-            temp_out_img = get_image_name(total_img_count)
-            render_content(d, template_file,
-                           temp_out_img, render_path=os.getcwd(),
-                           dimensions=dimensions)
-            output_images.extend([temp_out_img] * count)
-        else:
-            for idx in range(count):
-                temp_out_img = get_image_name(total_img_count)
-                d.update({'index': idx})
-                render_content(d, template_file,
-                               temp_out_img, render_path=os.getcwd(),
-                               dimensions=dimensions)
-                output_images.append(temp_out_img)
-    return output_images
-
-
-def render_content(data, template, tmp_img_file, render_path, dimensions):
-    template_abs_path = "{}/{}".format(render_path, template)
-    print("Rendering: {} with data: {}".format(template_abs_path, data))
-
-    with open(template_abs_path) as t:
-        template = jinja2.Template(t.read())
-
-    tmp_output_html = '{}/rendered.html'.format(TMPFILE_FOLDER)
-    with open(tmp_output_html, 'w') as f:
-        rendered_html = template.render(**data)
-        f.write(rendered_html)
-
-    get_screenshoter(dimensions).take_screenshot(
-        "file://"+tmp_output_html, tmp_img_file)
-
-
-def join_images(img_array: List[str], joined_img: str, dimensions: Dimension):
-    # creates a new empty image, RGB mode, and size 400 by 400.
-    def start_image_iter(max_images=10):
-        for img_count in range(max_images):
-            new_im = Image.new('RGB',
-                               size=dimensions.total_size,
-                               color=(255, 255, 255, 0))
-            dimension_iter = dimensions.iterate_layout()
-            joined_img_name = "{}_{}.png".format(joined_img, img_count)
-            yield(joined_img_name, new_im, dimension_iter)
-        raise ValueError("Too many images")
-
-    image_iter = start_image_iter()
-    (joined_img_name, new_im, dimension_iter) = next(image_iter)
-    for i, img_file in enumerate(img_array):
-        im = Image.open(img_file)
-        if not dimensions.potrait:
-            im = im.rotate(90, expand=True)
-        resized_im = im.resize(dimensions.dimensions, Image.ANTIALIAS)
-        try:
-            (x, y) = next(dimension_iter)
-        except StopIteration:
-            print("Output image: {}".format(joined_img_name))
-            new_im.save(joined_img_name)
-            (joined_img_name, new_im, dimension_iter) = next(image_iter)
-            (x, y) = next(dimension_iter)
-
-        new_im.paste(resized_im, (x, y))
-
-    print("Output image: {}".format(joined_img_name))
-    new_im.save(joined_img_name)
 
 
 if __name__ == "__main__":
