@@ -6,12 +6,12 @@ class Dimension:
 
     dimension: Tuple[int, int]
     image_layout: Tuple[int, int]
-    potrait: bool
+    protrait: bool
 
-    def __init__(self, dimensions, image_layout, potrait=True):
+    def __init__(self, dimensions, image_layout, protrait=True):
         self.dimensions = dimensions
         self.image_layout = image_layout
-        self.potrait = potrait
+        self.protrait = protrait
 
     @property
     def total_images(self):
@@ -43,4 +43,4 @@ class Layout:
     tts = Dimension((455, 682), (9, 6))
     # 2480 pixels x 3508 pixels (print resolution)
     A4 = Dimension((2480 // 4, 3508 // 4), (4, 4))
-    letter = Dimension((2480 // 2, 3508 // 4), (2, 4), False)
+    letter = Dimension((2480 // 3, 3508 // 6), (3, 6), False)

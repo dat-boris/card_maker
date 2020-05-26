@@ -76,7 +76,7 @@ def render_all(
             logging.warn(f"Skipping card type: {d}")
             continue
 
-        count = int(d.get(count_col, 1)) or 1
+        count = int(d.get(count_col, 1) or 1)
 
         html_file = next(html_names)
         img_file = next(img_names)

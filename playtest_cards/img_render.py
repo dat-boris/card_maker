@@ -45,7 +45,7 @@ def join_images(
 
     for i, img_file in enumerate(img_array):
         im = Image.open(img_file)
-        if not dimensions.potrait:
+        if not dimensions.protrait:
             im = im.rotate(90, expand=True)
         resized_im = im.resize(dimensions.dimensions, Image.ANTIALIAS)
         try:
