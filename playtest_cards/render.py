@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import logging
 from typing import Dict, List
@@ -41,6 +42,13 @@ def __copy_file(src: str, dst: str, extensions: List[str]):
             shutil.copy2(s, d)
 
 
+def __normalize_col_name(d):
+    return {
+        re.sub(r'[^\w]', '_', k.lower()): v
+        for k, v in d.items()
+    }
+
+
 def render_all(
     data: List[dict],
     relative_path_for_template,
@@ -55,6 +63,7 @@ def render_all(
     filename="output",
     # We need to copy assets into the render folder
     include_extensions=[".png"],
+    normalize_col_name=False,
 ) -> List[str]:
     """Render images
 
@@ -71,6 +80,8 @@ def render_all(
     img_names = SequentialFilename(filename, ext="png", temp_folder=temp_folder)
 
     for d in data:
+        if normalize_col_name:
+            d = __normalize_col_name(d)
         card_type = d.get(type_col)
         if type_filter is not None and type_filter != card_type:
             logging.warn(f"Skipping card type: {d}")
