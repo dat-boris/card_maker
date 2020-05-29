@@ -1,30 +1,46 @@
 from typing import List
+import os
+import time
 import pageshot
+import atexit
 from PIL import Image
 
 from playtest_cards.dimensions import Dimension
 from playtest_cards.utils import SequentialFilename
 
+from selenium import webdriver
+
+USE_SCREENSHOTER = True
 _screenshoter = None
 
 
-def get_screenshoter(dimensions: Dimension):
+def get_screenshoter(dimensions: Dimension, use_screenshoter=USE_SCREENSHOTER):
+    global _screenshoter
     if _screenshoter is None:
-        return pageshot.Screenshoter(
-            width=dimensions.dimensions[0], height=dimensions.dimensions[1]
-        )
+        if USE_SCREENSHOTER:
+            _screenshoter = pageshot.Screenshoter(
+                width=dimensions.dimensions[0], height=dimensions.dimensions[1]
+            )
+        else:
+            _screenshoter = webdriver.Chrome()
+            _screenshoter.set_window_size(
+                dimensions.dimensions[0], dimensions.dimensions[1])
+
+            atexit.register(_screenshoter.quit)
     return _screenshoter
 
 
 def generate_screenshot(html_file, output_image_name, dimensions: Dimension,
-use_imgkit=False) -> str:
-    if use_imgkit:
-        import imgkit
-        imgkit.from_file(html_file, output_image_name)
-    else:
+                        use_screenshoter=USE_SCREENSHOTER) -> str:
+    file_url = "file://" + html_file
+    if use_screenshoter:
         get_screenshoter(dimensions).take_screenshot(
-            "file://" + html_file, output_image_name
-        )
+            file_url, output_image_name)
+    else:
+        driver = get_screenshoter(dimensions)
+        driver.get(file_url)
+        time.sleep(0.5)
+        driver.get_screenshot_as_file(output_image_name)
     return output_image_name
 
 
@@ -39,7 +55,8 @@ def join_images(
     all_filename = []
 
     dimension_iter = dimensions.iterate_layout()
-    new_im = Image.new("RGB", size=dimensions.total_size, color=(255, 255, 255, 0))
+    new_im = Image.new("RGB", size=dimensions.total_size,
+                       color=(255, 255, 255, 0))
     joined_img_name = next(output_name_iter)
     all_filename.append(joined_img_name)
 
