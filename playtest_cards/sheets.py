@@ -8,7 +8,7 @@ from google.auth.transport.requests import Request
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 
 
-def get_creds():
+def get_creds(cred_file="credentials.json"):
     """Shows basic usage of the Sheets API.
     Prints values from a sample spreadsheet.
     """
@@ -24,8 +24,9 @@ def get_creds():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
+            print(f"Reading from: {cred_file}")
             # Obtain from https://developers.google.com/sheets/api/quickstart/python
-            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file(cred_file, SCOPES)
             creds = flow.run_local_server()
         # Save the credentials for the next run
         with open("token.pickle", "wb") as token:
@@ -34,21 +35,22 @@ def get_creds():
 
 
 class SheetReader:
-    def __init__(self, content_id, sheet_name="Sheet1"):
+    def __init__(self, content_id, sheet_name="Sheet1", skip_lines=0):
         self.service = build("sheets", "v4", credentials=get_creds())
         self.content_id = content_id
         sheet = self.service.spreadsheets()
         result = (
             sheet.values()
-            .get(spreadsheetId=self.content_id, range="{}!A:Z".format(sheet_name),)
+            .get(spreadsheetId=self.content_id, range="{}!A:AZ".format(sheet_name),)
             .execute()
         )
         values = result.get("values", [])
         if not values:
             raise ValueError("No data found.")
 
-        self.rows = values[1:]
-        self.col_label = list(map(lambda s: s.lower(), values[0]))
+        self.rows = values[skip_lines+1:]
+        self.col_label = list(map(lambda s: s.lower(), values[skip_lines]))
+        print(f"Got columns: {self.col_label}")
         self.i = 0
 
     def __len__(self):
@@ -62,5 +64,10 @@ class SheetReader:
             row = self.rows[self.i]
         except IndexError:
             raise StopIteration()
+        if not any(row):
+            raise StopIteration()
         self.i += 1
-        return {self.col_label[c]: v for c, v in enumerate(row)}
+        ret_row = {c: '' for c in self.col_label}
+        for c, v in enumerate(row):
+            ret_row[self.col_label[c]] = v
+        return ret_row
