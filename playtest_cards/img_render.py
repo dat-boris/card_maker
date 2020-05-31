@@ -10,7 +10,7 @@ from playtest_cards.utils import SequentialFilename
 
 from selenium import webdriver
 
-USE_SCREENSHOTER = True
+USE_SCREENSHOTER = False
 _screenshoter = None
 
 
