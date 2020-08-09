@@ -29,7 +29,10 @@ def render_html(
     logging.info("Rendering: {} with data: {}".format(template_abs_path, data))
 
     with open(template_abs_path) as t:
-        template = jinja2.Template(t.read())
+        # template = jinja2.Template(t.read())
+        template = jinja2.Environment(
+            loader=jinja2.FileSystemLoader(root_path)
+        ).from_string(t.read())
 
     if output_html_file:
         with open(output_html_file, "w") as f:
