@@ -6,10 +6,12 @@ import yaml
 import click
 from playtest_cards.sheets import SheetReader
 from playtest_cards.source import read_yaml
+from playtest_cards.dimensions import Layout
 
 
 TMPFILE_FOLDER = os.path.abspath('genfile')
-
+# TODO: using dict from previous usage, can use Layout directly below
+LAYOUT = Layout.__dict__
 
 @click.group()
 def cli():
@@ -51,7 +53,7 @@ def render_from_gsheet(content_sheet,
     """
     # layout png in sequential format
     input_dimensions = LAYOUT[input_layout]
-    gsheet_data = iter(SheetReader(content_sheet, sheet_name=sheet_name))
+    gsheet_data = iter(SheetReader(content_sheet, sheet_name=sheetname))
     image_files = parse_content_from_array(
         gsheet_data, dimensions=input_dimensions, test=test)
     output_dimensions = LAYOUT[layout]

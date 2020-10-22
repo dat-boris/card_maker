@@ -5,7 +5,7 @@ import pageshot
 import atexit
 from PIL import Image
 
-from playtest_cards.dimensions import Dimension
+from playtest_cards.dimensions import Dimension, DEFAULT_WIDTH, DEFAULT_HEIGHT
 from playtest_cards.utils import SequentialFilename
 
 from selenium import webdriver
@@ -14,17 +14,22 @@ USE_SCREENSHOTER = False
 _screenshoter = None
 
 
-def get_screenshoter(dimensions: Dimension, use_screenshoter=USE_SCREENSHOTER):
+def get_screenshoter(
+        dimensions: Dimension, use_screenshoter=USE_SCREENSHOTER,
+        use_strict_dimension=False):
     global _screenshoter
+    width = DEFAULT_WIDTH
+    height = DEFAULT_HEIGHT
+    if use_strict_dimension:
+        width = dimensions.dimensions[0]
+        height = dimensions.dimensions[1]
     if _screenshoter is None:
         if USE_SCREENSHOTER:
             _screenshoter = pageshot.Screenshoter(
-                width=dimensions.dimensions[0], height=dimensions.dimensions[1]
-            )
+                width=width, height=height)
         else:
             _screenshoter = webdriver.Chrome()
-            _screenshoter.set_window_size(
-                dimensions.dimensions[0], dimensions.dimensions[1])
+            _screenshoter.set_window_size(width, height)
 
             atexit.register(_screenshoter.quit)
     return _screenshoter

@@ -1,6 +1,11 @@
 from typing import Tuple
 
 
+# Always use default width and height
+DEFAULT_WIDTH = 877
+DEFAULT_HEIGHT = 1040
+
+
 class Dimension:
     """Record dimension of the print layout"""
 
@@ -40,9 +45,15 @@ class Dimension:
 class Layout:
     # for tabletop simulator
     # based on 9*6 requirements for 4096 * 4096
-    tts = Dimension((455, 682), (9, 6))
+    tts = Dimension((4096 // 6, 4096 // 4), (6, 4))
     # vertical
     tts_vertical = Dimension((682, 455), (6, 9))
     # 2480 pixels x 3508 pixels (print resolution)
     A4 = Dimension((2480 // 4, 3508 // 4), (4, 4))
-    letter = Dimension((2480 // 3, 3508 // 6), (3, 6))
+    letter = Dimension((2480 // 4, 3508 // 6), (4, 6))
+    # 1240, 877
+    letter_landscape = Dimension(
+        (3508 // 4, 2480 // 2), (4, 2), protrait=True)
+    # See
+    tabletopia_card = Dimension(
+        (DEFAULT_WIDTH, DEFAULT_HEIGHT), (1, 1), protrait=True)
