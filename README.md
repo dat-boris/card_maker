@@ -11,7 +11,7 @@ A tool which allows you to generate fast prototype of cards to be used for
 ## Using the library
 
 ```
-pip install git+https://github.com/dat-boris/card_maker
+pip install git+https://github.com/dat-boris/card_maker#egg=playtest_card
 ```
 
 And then you can reference in your code
