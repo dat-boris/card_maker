@@ -2,10 +2,41 @@ Card maker
 ----------
 
 A tool which allows you to generate fast prototype of cards to be used for
-both [Tabletop Simulator](https://store.steampowered.com/app/286160/Tabletop_Simulator/)
-as well as for printing.
+
+* [Tabletop Simulator](https://store.steampowered.com/app/286160/Tabletop_Simulator/)
+* [Tabletopia](https://tabletopia.com/workshop/)
+* Printing PDF
+
+
+## Using the library
+
+```
+pip install git+https://github.com/dat-boris/card_maker
+```
+
+And then you can reference in your code
+
+```
+import playtest_cards as pc
+
+# Require you to setup your gsheet access token
+csv_data = pc.read_gsheet(CSV_LINK, sheet_name=SHEET_NAME)
+
+render_all(
+    csv_data,
+    asset_folder,  # Assets folder (where template will reference)
+    asset_folder,
+    # Different default layouts
+    dimensions=pc.Layout.letter_landscape,
+    #dimensions=pc.Layout.tabletopia_card,
+    output_ext="pdf",  # can output as various formats
+)
+```
+
 
 ## Getting started
+
+> Note the script is currently broken
 
 The game starts with creating a manifest folder, which contains the
 different specification of cards.  For example, if we want to create a
