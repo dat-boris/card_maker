@@ -2,7 +2,7 @@ from typing import Tuple
 
 
 # Always use default width and height
-DEFAULT_WIDTH = 877
+DEFAULT_WIDTH = 800
 DEFAULT_HEIGHT = 1040
 
 

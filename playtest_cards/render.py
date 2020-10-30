@@ -75,6 +75,7 @@ def render_all(
     filename="output",
     # We need to copy assets into the render folder
     include_extensions=[".png"],
+    output_ext="jpg",
     normalize_col_name=False,
 ) -> List[str]:
     """Render images
@@ -120,7 +121,7 @@ def render_all(
         output_images.extend([img_file] * count)
 
     final_images_iter = SequentialFilename(
-        output_filename, ext="jpg", temp_folder=output_folder
+        output_filename, ext=output_ext, temp_folder=output_folder
     )
     final_images = join_images(output_images, final_images_iter, dimensions)
     return final_images
