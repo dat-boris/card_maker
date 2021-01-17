@@ -14,15 +14,22 @@ USE_SCREENSHOTER = False
 _screenshoter = None
 
 
-def get_screenshoter(
-        dimensions: Dimension, use_screenshoter=USE_SCREENSHOTER,
-        use_strict_dimension=False):
+# This is a hack to consider a more accurate browser space used.
+# TODO: we need better way to account for non render space of browser
+# #  (e.g.bookmark bar)
+HACK_TOP_BROWSER_PADDING = 200
+
+
+def get_screenshoter(dimensions: Dimension, use_screenshoter=USE_SCREENSHOTER):
+    """Get screenshooter, which can be reused.
+
+    Note that the screensize is tricky here.  That the dimensions of
+    set_window_size actually only set the "browser window" size, but not
+    the actual browser pixel size. (see HACK_TOP_BROWSER_PADDING)
+    """
     global _screenshoter
-    width = DEFAULT_WIDTH
-    height = DEFAULT_HEIGHT
-    if use_strict_dimension:
-        width = dimensions.dimensions[0]
-        height = dimensions.dimensions[1]
+    width = dimensions.dimensions[0]
+    height = dimensions.dimensions[1] + HACK_TOP_BROWSER_PADDING
     if _screenshoter is None:
         if USE_SCREENSHOTER:
             _screenshoter = pageshot.Screenshoter(

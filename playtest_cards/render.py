@@ -77,6 +77,8 @@ def render_all(
     include_extensions=[".png"],
     output_ext="jpg",
     normalize_col_name=False,
+    # For debugging, only render subset of files
+    debug_limit=None,
 ) -> List[str]:
     """Render images
 
@@ -94,7 +96,7 @@ def render_all(
     img_names = SequentialFilename(
         filename, ext="png", temp_folder=temp_folder)
 
-    for d in data:
+    for d in data[:debug_limit]:
         if normalize_col_name:
             d = __normalize_col_name(d)
         card_type = d.get(type_col)

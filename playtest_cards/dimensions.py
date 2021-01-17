@@ -53,7 +53,9 @@ class Layout:
     letter = Dimension((2480 // 4, 3508 // 6), (4, 6))
     # 1240, 877
     letter_landscape = Dimension(
-        (3508 // 4, 2480 // 2), (4, 2), protrait=True)
+        (3508 // 4, 2480 // 4), (4, 4), protrait=True)
+    # Small print out (310x438 per tile)
+    letter_tiles = Dimension((2480 // 8, 3508 // 6), (8, 6))
     # See
     tabletopia_card = Dimension(
         (DEFAULT_WIDTH, DEFAULT_HEIGHT), (1, 1), protrait=True)
